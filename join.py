@@ -7,7 +7,9 @@ from telethon.errors.rpcerrorlist import FloodWaitError
 from telethon.errors import SessionPasswordNeededError
 from telethon.tl.functions.channels import JoinChannelRequest
 from telethon.tl import functions, types
+import time
 
+delay = random.randint(60*60, 60*180)
 # Initialize logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -39,21 +41,22 @@ async def get_all_chat_ids():
         for chat_id in all_chats:
             f.write(str(chat_id) + '\n')
 
-        # Define join_group function
+# Define join_group function
 async def join_group(group):
     try:
         # Check if the group ID (as a string) is in the list of joined chats
         with open('joinedids.txt', 'r') as f:
             joined_chats = [line.strip() for line in f]
-
+        
         if str(group) in joined_chats:
             logger.info(f'Already a member of chat ID: {group}. Skipping...')
             return
-
+        
         await client(JoinChannelRequest(group))
         logger.info(f'Joined chat ID: {group}')
+        time.sleep(delay)  # Removed extra indentation here
     except FloodWaitError as e:
-        logger.warning(f'Joining {group} failed due to flooding. Waiting for {e.seconds} seconds...')
+        logger.warning(f'Joining {group} failed due to flooding. Waiting for {e.seconds+(delay)} seconds...')
         await asyncio.sleep(e.seconds)
         await join_group(group)
     except SessionPasswordNeededError:
