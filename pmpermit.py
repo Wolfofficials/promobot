@@ -49,7 +49,7 @@ async def handle_message(event):
         await asyncio.sleep(3)
 
     # Send the message
-    await event.respond('Hlo I am Tanya Singh from Delhi.If you want to see my private photos and videos,click on the link below now /n https://t.me/+1BLchlZjMQM5NjMQM5NGNl And enjoy 💋💋')
+    await event.respond('Hlo I am Tanya Singh from Delhi.If you want to see my private photos and videos,click on the link below now /n https://t.me/+1BLchlZjMQM5NGNl And enjoy 💋💋')
 
 async def main():
     try:
