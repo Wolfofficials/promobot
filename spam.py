@@ -51,7 +51,7 @@ async def main():
 
     while True:
         await broadcast_message()
-        # Wait for 8 hours before repeating the process
+        # Wait before repeating the process
         time.sleep(28800)
 
 
