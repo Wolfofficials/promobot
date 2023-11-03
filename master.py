@@ -12,7 +12,7 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 subprocess.Popen(f'python3 "{os.path.join(script_dir, "join.py")}" &', shell=True)
 
 # Start script2.py
-subprocess.Popen(f'python3 "{os.path.join(script_dir, "spam using wolf.py")}" &', shell=True)
+subprocess.Popen(f'python3 "{os.path.join(script_dir, "spam.py")}" &', shell=True)
 
 # Start script3.py
 subprocess.Popen(f'python3 "{os.path.join(script_dir, "pmpermit.py")}" &', shell=True)
