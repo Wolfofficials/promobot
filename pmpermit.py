@@ -38,7 +38,7 @@ async def handle_message(event):
     message_count_dict[sender_id] = message_count + 1
     message_count_dict[sender_id] = current_time
 
-        # Mark the message as seen
+    # Mark the message as seen
     await event.message.mark_read()
 
     # Wait for 2 seconds
@@ -48,9 +48,13 @@ async def handle_message(event):
     async with client.action(sender_id, 'typing'):
         await asyncio.sleep(3)
 
-    # Send the message
-    await event.respond('Hlo I am Tanya Singh from Delhi.If you want to see my private photos and videos,click on the link below now /n https://t.me/+1BLchlZjMQM5NGNl And enjoy 💋💋')
+    # Get your account's first name
+    me = await client.get_me()
+    my_name = me.first_name
 
+    # Send the message with your name
+    response = f'Hello, I am {my_name} from Delhi. If you want to see my private photos and videos, click on the link below now\nhttps://t.me/+1BLchlZjMQM5NGNl and enjoy! 💋💋'
+    await event.respond(response)
 async def main():
     try:
         await client.start()
