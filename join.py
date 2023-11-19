@@ -33,7 +33,7 @@ async def join_group(group):
         # Attempt to join the group
         await client(JoinChannelRequest(group))
         logger.info(f'Joined chat ID: {group}')
-        asyncio.sleep(delay)
+        await asyncio.sleep(delay)  # Await the delay
     except FloodWaitError as e:
         logger.warning(f'Joining {group} failed due to flooding. Waiting for {e.seconds + delay} seconds...')
         await asyncio.sleep(e.seconds + delay)
