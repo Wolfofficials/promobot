@@ -1,72 +1,80 @@
-import asyncio
+from telethon.sync import TelegramClient
+from telethon import functions
+from telethon.sessions import StringSession
+from telethon.tl.functions.messages import SendMessageRequest
+from telethon.errors import PeerFloodError, UserIsBlockedError, ChatWriteForbiddenError, ChatAdminRequiredError
+import time
 import random
 import logging
-from telethon import TelegramClient
-from telethon.sessions import StringSession
-from telethon.errors.rpcerrorlist import FloodWaitError
-from telethon.errors import SessionPasswordNeededError
-from telethon.tl.functions.channels import JoinChannelRequest
-from telethon.tl.functions.messages import SendMessageRequest
 
-# Initialize logging with a StreamHandler
-import sys
-logging.basicConfig(level=logging.INFO, handlers=[logging.StreamHandler(stream=sys.stdout)])
+from creds import session, api_id, api_hash
+
+client = TelegramClient(StringSession(session), int(api_id), api_hash)
+client.start()
+
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-delay = random.randint(60 * 30, 60 * 180)
 
-from creds import session, api_id, api_hash  # Import credentials from creds.py
+owner = 'wolfofficials'
 
-# Check if the script is being run independently
-if __name__ == "__main__":
-    # Create a client instance using the string session
-    client = TelegramClient(StringSession(session), api_id, api_hash)
+def get_random_message():
+    with open('texts.txt', 'r') as file:
+        lines = file.readlines()
+        return random.choice(lines).strip()
 
-    # Start the client
-    async def start_client():
-        await client.start()
-        print('Successfully logged in.')
+async def send_message(error_message, group_name):
+    formatted_error_message = f"SPM: ({error_message}) in ({group_name})"
+    
+    try:
+        await client(SendMessageRequest(owner, formatted_error_message))
+    except Exception as e:
+        # Log error if sending the error message fails
+        logger.error(f"Error sending formatted error message: {e}")
 
-    # Specify the chat ID where you want to send logs
-    username = 'wolfofficials'
+async def broadcast_message():
+    groups = await client.get_dialogs()
+    groups = [g for g in groups if g.is_group]
 
-    with open('groups.txt', 'r') as f:
-        groups_to_join = [line.strip() for line in f if line.strip()]
-        random.shuffle(groups_to_join)
+    random.shuffle(groups)
 
-    # Define join_group function
-    async def join_group(group):
+    for group in groups:
         try:
-            # Attempt to join the group
-            await client(JoinChannelRequest(group))
-            log_and_send(logging.INFO, f'Joined chat ID: {group}')
-            await asyncio.sleep(delay)
-        except FloodWaitError as e:
-            log_and_send(logging.WARNING, f'Joining {group} failed due to flooding. Waiting for {e.seconds + delay} seconds...')
-            await asyncio.sleep(e.seconds + delay)
+            message = get_random_message()
+            await client(SendMessageRequest(group, message))
+            delay = random.randint(31, 132)
+            time.sleep(delay)
+
+        except PeerFloodError as e:
+            await send_message("PeerFloodError", group.name)
+            time.sleep(50)
+            pass
+        except UserIsBlockedError as e:
+            await send_message("UserIsBlockedError", group.name)
+            pass
+        except ChatWriteForbiddenError as e:
+            await send_message("ChatWriteForbiddenError", group.name)
+            await client(functions.channels.LeaveChannelRequest(group.id))
+            await send_message("left group", group.name)
+            
+            pass
+        except ChatAdminRequiredError as e:
+            await send_message("ChatAdminRequiredError", group.name)
+            pass
         except Exception as e:
-            log_and_send(logging.ERROR, f'Error joining chat ID: {group}. Details: {e}')
-            await asyncio.sleep(delay)
-        finally:
-            # Remove the group username from groups.txt immediately
-            groups_to_join.remove(group)
-            with open('groups.txt', 'w') as f:
-                for g in groups_to_join:
-                    f.write(f'{g}\n')
+            # Log all other errors
+            logger.error(f"Error in group {group}: {e}")
+            await send_message(f"Error: {e}", group.name)
 
-    # Define send_log_message function
-    async def send_log_message(message):
-        await client(SendMessageRequest(username, message))
+            print(f"completed")
+            await send_message("Broadcast Complete")
 
-    def log_and_send(level, message):
-        logger.log(level, message)
-        asyncio.ensure_future(send_log_message(message))
+async def main():
+    await client.start()
 
-    # Define main coroutine
-    async def main():
-        while groups_to_join:
-            group = groups_to_join[0]  # Get the first group in the list
-            await join_group(group)
+    while True:
+        await broadcast_message()
+        # Wait before repeating the process
+        time.sleep(28800)
 
-    # Run the main loop until interrupted
-    with client:
-        client.loop.run_until_complete(main())
+with client:
+    client.loop.run_until_complete(main())
