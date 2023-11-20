@@ -28,7 +28,7 @@ username = 'wolfofficials'
 
 with open('groups.txt', 'r') as f:
    groups = [line.strip() for line in f if line.strip()]
-
+   random.shuffle(groups)
 
 # Define join_group function
 async def join_group(group):
