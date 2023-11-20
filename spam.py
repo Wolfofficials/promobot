@@ -41,12 +41,12 @@ async def broadcast_message():
         try:
             message = get_random_message()
             await client(SendMessageRequest(group, message))
-            delay = random.randint(31, 132)
-            time.sleep(delay)
+            spmdelay = random.randint(51, 132)
+            time.sleep(spmdelay)
 
         except PeerFloodError as e:
             await send_message("PeerFloodError", group.name)
-            time.sleep(50)
+             time.sleep(spmdelay)
             pass
         except UserIsBlockedError as e:
             await send_message("UserIsBlockedError", group.name)
@@ -74,7 +74,8 @@ async def main():
     while True:
         await broadcast_message()
         # Wait before repeating the process
-        time.sleep(28800)
+        nextbroddelay = random.randint(27000, 28800)
+        time.sleep(nextbroddelay)
 
 with client:
     client.loop.run_until_complete(main())
