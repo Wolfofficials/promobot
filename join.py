@@ -12,7 +12,7 @@ from telethon.tl.functions.messages import SendMessageRequest
 import sys
 logging.basicConfig(level=logging.INFO, handlers=[logging.StreamHandler(stream=sys.stdout)])
 logger = logging.getLogger(__name__)
-delay = random.randint (1,3)#(60 * 30, 60 * 180)
+delay = random.randint (60 * 30, 60 * 180)
 
 
 from creds import session, api_id, api_hash  # Import credentials from creds.py
